@@ -6,7 +6,7 @@ from urllib.parse import quote
 from telegram import InlineKeyboardMarkup
 from telegram.ext import CommandHandler, CallbackQueryHandler
 
-from bot import dispatcher, LOGGER, SEARCH_API_LINK, SEARCH_PLUGINS, get_client, SEARCH_LIMIT, TELEGRAPH_STYLE
+from bot import dispatcher, LOGGER, SEARCH_API_LINK, SEARCH_PLUGINS, get_client, SEARCH_LIMIT, TELEGRAPH_STYLE, TITLE_NAME
 from bot.helper.ext_utils.telegraph_helper import telegraph
 from bot.helper.telegram_helper.message_utils import editMessage, sendMessage, sendMarkup, sendFile, deleteMessage
 from bot.helper.telegram_helper.filters import CustomFilters
@@ -302,7 +302,7 @@ def _getResult(search_results, key, message, method):
 
         editMessage(f"<b>Creating</b> {len(telegraph_content)} <b>Telegraph pages.</b>", message)
         path = [telegraph.create_page(
-                    title='WeebZone',
+                    title='{TITLE_NAME}',
                     content=content
                 )["path"] for content in telegraph_content]
         sleep(0.5)

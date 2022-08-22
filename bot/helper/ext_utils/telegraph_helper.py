@@ -7,7 +7,7 @@ from time import sleep
 from telegraph import Telegraph
 from telegraph.exceptions import RetryAfterError
 
-from bot import LOGGER, AUTHOR_NAME, AUTHOR_URL
+from bot import LOGGER, AUTHOR_NAME, AUTHOR_URL, TITLE_NAME
 
 
 class TelegraphHelper:
@@ -72,7 +72,7 @@ class TelegraphHelper:
                     nxt_page += 1
             self.edit_page(
                 path = path[prev_page],
-                title = 'Mirror-with-weeb Torrent Search',
+                title = '{TITLE_NAME} Torrent Search',
                 content=content
             )
         return
