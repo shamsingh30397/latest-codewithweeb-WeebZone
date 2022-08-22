@@ -3,13 +3,12 @@ from threading import Thread, Event
 from time import time
 from math import ceil
 from html import escape
-from psutil import virtual_memory, cpu_percent, disk_usage
+from psutil import cpu_percent, disk_usage, net_io_counters, virtual_memory
 from requests import head as rhead
 from urllib.request import urlopen
 from telegram import InlineKeyboardMarkup
 
 from bot.helper.telegram_helper.bot_commands import BotCommands
-from bot import FINISHED_PROGRESS_STR, UN_FINISHED_PROGRESS_STR, download_dict, download_dict_lock, STATUS_LIMIT, botStartTime, DOWNLOAD_DIR, WEB_PINCODE, BASE_URL, EMOJI_THEME, TOTAL_TASKS_LIMIT, USER_TASKS_LIMIT, LEECH_LIMIT, MEGA_LIMIT, TITLE_NAME, TORRENT_DIRECT_LIMIT, ZIP_UNZIP_LIMIT
 from bot.helper.telegram_helper.button_build import ButtonMaker
 
 import shutil
@@ -141,6 +140,18 @@ def get_user_task(user_id):
         if userid == user_id: user_task += 1
     return user_task
 
+def progress_bar(percentage):
+    """Returns a progress bar for download"""
+    if isinstance(percentage, str):
+        return "NaN"
+    try:
+        percentage = int(percentage)
+    except Exception:
+        percentage = 0
+    comp = "▰"
+    ncomp = "▱"
+    return "".join(comp if i <= percentage // 10 else ncomp for i in range(1, 11))
+    
 def get_progress_bar_string(status):
     completed = status.processed_bytes() / 8
     total = status.size_raw() / 8
@@ -417,43 +428,44 @@ def pop_up_stats(update, context):
     stats = bot_sys_stats()
     query.answer(text=stats, show_alert=True)
 def bot_sys_stats():
-    currentTime = get_readable_time(time() - botStartTime)
-    cpu = psutil.cpu_percent()
-    mem = psutil.virtual_memory().percent
-    disk = psutil.disk_usage(DOWNLOAD_DIR).percent
-    total, used, free = shutil.disk_usage(DOWNLOAD_DIR)
-    total = get_readable_file_size(total)
-    used = get_readable_file_size(used)
-    free = get_readable_file_size(free)
-    recv = get_readable_file_size(psutil.net_io_counters().bytes_recv)
-    sent = get_readable_file_size(psutil.net_io_counters().bytes_sent)
+    sent = get_readable_file_size(net_io_counters().bytes_recv)
+    recv = get_readable_file_size(net_io_counters().bytes_sent)
     num_active = 0
     num_upload = 0
+    num_seeding = 0
+    num_zip = 0
+    num_unzip = 0
     num_split = 0
-    num_extract = 0
-    num_archi = 0
     tasks = len(download_dict)
+    cpu = cpu_percent()
+    mem = virtual_memory().percent
+    disk = disk_usage("/").percent
     for stats in list(download_dict.values()):
-       if stats.status() == MirrorStatus.STATUS_DOWNLOADING:
-                num_active += 1
-       if stats.status() == MirrorStatus.STATUS_UPLOADING:
-                num_upload += 1
-       if stats.status() == MirrorStatus.STATUS_ARCHIVING:
-                num_archi += 1
-       if stats.status() == MirrorStatus.STATUS_EXTRACTING:
-                num_extract += 1
-       if stats.status() == MirrorStatus.STATUS_SPLITTING:
-                num_split += 1
-    stats = f"""
-CPU : {cpu}% | RAM : {mem}%
+        if stats.status() == MirrorStatus.STATUS_DOWNLOADING:
+            num_active += 1
+        if stats.status() == MirrorStatus.STATUS_UPLOADING:
+            num_upload += 1
+        if stats.status() == MirrorStatus.STATUS_SEEDING:
+            num_seeding += 1
+        if stats.status() == MirrorStatus.STATUS_ARCHIVING:
+            num_zip += 1
+        if stats.status() == MirrorStatus.STATUS_EXTRACTING:
+            num_unzip += 1
+        if stats.status() == MirrorStatus.STATUS_SPLITTING:
+            num_split += 1
+    return f"""
+{AUTHOR_NAME} Mirror Stats
 
-DL : {num_active} | UP : {num_upload} | SPLIT : {num_split}
-ZIP : {num_archi} | UNZIP : {num_extract} | TOTAL : {tasks}
+Tasks: {tasks}
 
-Limits : T/D : {TORRENT_DIRECT_LIMIT}GB | Z/U : {ZIP_UNZIP_LIMIT}GB
-                    L : {LEECH_LIMIT}GB | M : {MEGA_LIMIT}GB
+CPU: {progress_bar(cpu)} {cpu}%
+RAM: {progress_bar(mem)} {mem}%
 
-Made with ❤️ by {TITLE_NAME}
+DISK: {progress_bar(disk)} {disk}%
+SENT: {sent} | RECV: {recv}
+
+DLs: {num_active} | ULs: {num_upload} | SEEDING: {num_seeding}
+ZIP: {num_zip} | UNZIP: {num_unzip} | SPLIT: {num_split}
 """
     return stats
 dispatcher.add_handler(
