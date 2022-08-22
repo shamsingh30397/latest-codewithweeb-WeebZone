@@ -127,7 +127,7 @@ def _clone(message, bot):
         slmsg = f"Added by: {tag} \nUser ID: <code>{user_id}</code>\n\n"
     if LINK_LOGS:
             try:
-                f"<code>{message_args[1]}</code>"
+                source_link = f"<code>{message_args[1]}</code>"
                 for link_log in LINK_LOGS:
                     bot.sendMessage(link_log, text=slmsg + source_link, parse_mode=ParseMode.HTML )
             except IndexError:
