@@ -454,23 +454,6 @@ except:
     BUTTON_SIX_NAME = None
     BUTTON_SIX_URL = None
 try:
-    START_BTN1_NAME = getConfig('START_BTN1_NAME')
-    START_BTN1_URL = getConfig('START_BTN1_URL')
-    if len(START_BTN1_NAME) == 0 or len(START_BTN1_URL) == 0:
-        raise KeyError
-except:
-    START_BTN1_NAME = 'Master'
-    START_BTN1_URL = 'https://t.me/krn_adhikari'
-
-try:
-    START_BTN2_NAME = getConfig('START_BTN2_NAME')
-    START_BTN2_URL = getConfig('START_BTN2_URL')
-    if len(START_BTN2_NAME) == 0 or len(START_BTN2_URL) == 0:
-        raise KeyError
-except:
-    START_BTN2_NAME = 'Support Group'
-    START_BTN2_URL = 'https://t.me/WeebZone_updates'
-try:
     INCOMPLETE_TASK_NOTIFIER = getConfig('INCOMPLETE_TASK_NOTIFIER')
     INCOMPLETE_TASK_NOTIFIER = INCOMPLETE_TASK_NOTIFIER.lower() == 'true'
 except:
@@ -634,6 +617,11 @@ try:
         LEECH_LOG_URL = ''
 except KeyError:
     LEECH_LOG_URL = ''
+try:	
+    LEECH_LOG_INDEXING = getConfig('LEECH_LOG_INDEXING')	
+    LEECH_LOG_INDEXING = LEECH_LOG_INDEXING.lower() == 'true'	
+except KeyError:	
+    LEECH_LOG_INDEXING = False
 try:
     AUTHOR_NAME = getConfig('AUTHOR_NAME')
     if len(AUTHOR_NAME) == 0:
@@ -659,11 +647,30 @@ try:
 except KeyError:
     TITLE_NAME = 'WeebZone'
 try:
+    START_BTN1_NAME = getConfig('START_BTN1_NAME')
+    START_BTN1_URL = getConfig('START_BTN1_URL')
+    if len(START_BTN1_NAME) == 0 or len(START_BTN1_URL) == 0:
+        raise KeyError
+except:
+    START_BTN1_NAME = 'Master'
+    START_BTN1_URL = 'https://t.me/krn_adhikari'
+
+try:
+    START_BTN2_NAME = getConfig('START_BTN2_NAME')
+    START_BTN2_URL = getConfig('START_BTN2_URL')
+    if len(START_BTN2_NAME) == 0 or len(START_BTN2_URL) == 0:
+        raise KeyError
+except:
+    START_BTN2_NAME = 'Support Group'
+    START_BTN2_URL = 'https://t.me/WeebZone_updates'
+
+try:
     CREDIT_NAME = getConfig('CREDIT_NAME')
     if len(CREDIT_NAME) == 0:
         CREDIT_NAME = 'WeebZone'
 except KeyError:
     CREDIT_NAME = 'WeebZone'
+
 try:
     FINISHED_PROGRESS_STR = getConfig('FINISHED_PROGRESS_STR') 
     UN_FINISHED_PROGRESS_STR = getConfig('UN_FINISHED_PROGRESS_STR')

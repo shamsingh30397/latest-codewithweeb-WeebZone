@@ -12,6 +12,7 @@ from requests import get as rget, head as rhead, post as rpost, Session as rsess
 from re import findall as re_findall, sub as re_sub, match as re_match, search as re_search
 import requests
 import re
+from time import sleep
 from base64 import b64decode
 from urllib.parse import urlparse, unquote, parse_qs
 from json import loads as jsonloads
@@ -106,7 +107,7 @@ def yandex_disk(url: str) -> str:
 
 def uptobox(url: str) -> str:
     """ Uptobox direct link generator
-    based on https://github.com/jovanzers/WinTenCermin """
+    based on https://github.com/jovanzers/WinTenCermin and https://github.com/sinoobie/noobie-mirror """
     try:
         link = re_findall(r'\bhttps?://.*uptobox\.com\S+', url)[0]
     except IndexError:
@@ -123,7 +124,21 @@ def uptobox(url: str) -> str:
             file_link = 'https://uptobox.com/api/link?token=%s&file_code=%s' % (UPTOBOX_TOKEN, file_id)
             req = rget(file_link)
             result = req.json()
-            dl_url = result['data']['dlLink']
+            if result['message'].lower() == 'success':
+                dl_url = result['data']['dlLink']
+            elif result['message'].lower() == 'waiting needed':
+                waiting_time = result["data"]["waiting"] + 1
+                waiting_token = result["data"]["waitingToken"]
+                sleep(waiting_time)
+                req2 = rget(f"{file_link}&waitingToken={waiting_token}")
+                result2 = req2.json()
+                dl_url = result2['data']['dlLink']
+            elif result['message'].lower() == 'you need to wait before requesting a new download link':
+                cooldown = divmod(result['data']['waiting'], 60)
+                raise DirectDownloadLinkException(f"ERROR: Uptobox is being limited please wait {cooldown[0]} min {cooldown[1]} sec.")
+            else:
+                LOGGER.info(f"UPTOBOX_ERROR: {result}")
+                raise DirectDownloadLinkException(f"ERROR: {result['message']}")
     return dl_url
 
 def mediafire(url: str) -> str:
