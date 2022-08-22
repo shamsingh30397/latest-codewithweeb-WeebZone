@@ -63,8 +63,9 @@ def _mirror_leech(bot, message, isZip=False, extract=False, isQbit=False, isLeec
             buttons.buildbutton("Click Here to Start Me", f"{botstart}")
             startwarn = f"Dear {uname},\n\n<b>I found that you haven't started me in PM (Private Chat) yet.</b>\n\n" \
                         f"From now on i will give link and leeched files in PM and log channel only"
-            message = sendMarkup(startwarn, bot, message, InlineKeyboardMarkup(buttons.build_menu(2)))
-            return
+            reply_message = sendMarkup(startwarn, bot, message, InlineKeyboardMarkup(buttons.build_menu(2)))
+            Thread(target=auto_delete_message, args=(bot, message, reply_message)).start()
+            return reply_message
 
     total_task = len(download_dict)
     user_id = message.from_user.id
@@ -195,7 +196,9 @@ def _mirror_leech(bot, message, isZip=False, extract=False, isQbit=False, isLeec
             help_msg += "(only ratio) or d::10 (only time) where time in minutes"
             help_msg += "\n\n<b>Multi links only by replying to first link/file:</b>"
             help_msg += "\n<code>/command</code> 10(number of links/files)"
-        return sendMessage(help_msg, bot, message)
+            reply_message = sendMessage(help_msg, bot, message)
+            Thread(target=auto_delete_message, args=(bot, message, reply_message)).start()
+        return reply_message
 
     LOGGER.info(link)
 

@@ -606,6 +606,18 @@ try:
 except KeyError:	
     BOT_PM = False
 try:
+    MIRROR_LOG_URL = getConfig('MIRROR_LOG_URL')
+    if len(MIRROR_LOG_URL) == 0:
+        MIRROR_LOG_URL = ''
+except KeyError:
+    MIRROR_LOG_URL = ''
+try:
+    LEECH_LOG_URL = getConfig('LEECH_LOG_URL')
+    if len(LEECH_LOG_URL) == 0:
+        LEECH_LOG_URL = ''
+except KeyError:
+    LEECH_LOG_URL = ''
+try:
     AUTHOR_NAME = getConfig('AUTHOR_NAME')
     if len(AUTHOR_NAME) == 0:
         AUTHOR_NAME = 'Karan'
@@ -629,6 +641,31 @@ try:
         TITLE_NAME = 'WeebZone-Mirror-Search'
 except KeyError:
     TITLE_NAME = 'WeebZone-Mirror-Search'
+try:
+    START_BTN1_NAME = getConfig('START_BTN1_NAME')
+    START_BTN1_URL = getConfig('START_BTN1_URL')
+    if len(START_BTN1_NAME) == 0 or len(START_BTN1_URL) == 0:
+        raise KeyError
+except:
+    START_BTN1_NAME = 'Master'
+    START_BTN1_URL = 'https://t.me/krn_adhikari'
+
+try:
+    START_BTN2_NAME = getConfig('START_BTN2_NAME')
+    START_BTN2_URL = getConfig('START_BTN2_URL')
+    if len(START_BTN2_NAME) == 0 or len(START_BTN2_URL) == 0:
+        raise KeyError
+except:
+    START_BTN2_NAME = 'Support Group'
+    START_BTN2_URL = 'https://t.me/WeebZone_updates'
+
+try:
+    TITLE_NAME = getConfig('TITLE_NAME')
+    if len(TITLE_NAME) == 0:
+        TITLE_NAME = 'WeebZone'
+except KeyError:
+    TITLE_NAME = 'WeebZone'
+
 try:
     FINISHED_PROGRESS_STR = getConfig('FINISHED_PROGRESS_STR') 
     UN_FINISHED_PROGRESS_STR = getConfig('UN_FINISHED_PROGRESS_STR')

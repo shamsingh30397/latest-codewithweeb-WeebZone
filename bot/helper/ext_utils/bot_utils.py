@@ -9,7 +9,7 @@ from urllib.request import urlopen
 from telegram import InlineKeyboardMarkup
 
 from bot.helper.telegram_helper.bot_commands import BotCommands
-from bot import FINISHED_PROGRESS_STR, UN_FINISHED_PROGRESS_STR, download_dict, download_dict_lock, STATUS_LIMIT, botStartTime, DOWNLOAD_DIR, WEB_PINCODE, BASE_URL, EMOJI_THEME, TOTAL_TASKS_LIMIT, USER_TASKS_LIMIT
+from bot import FINISHED_PROGRESS_STR, UN_FINISHED_PROGRESS_STR, download_dict, download_dict_lock, STATUS_LIMIT, botStartTime, DOWNLOAD_DIR, WEB_PINCODE, BASE_URL, EMOJI_THEME, TOTAL_TASKS_LIMIT, USER_TASKS_LIMIT, LEECH_LIMIT, MEGA_LIMIT, TITLE_NAME, TORRENT_DIRECT_LIMIT, ZIP_UNZIP_LIMIT
 from bot.helper.telegram_helper.button_build import ButtonMaker
 
 import shutil
@@ -154,7 +154,7 @@ def get_progress_bar_string(status):
 
 def get_readable_message():
     with download_dict_lock:
-        msg = ""
+        msg = f"Powered By <b>{TITLE_NAME}</b>"
         if STATUS_LIMIT is not None:
             tasks = len(download_dict)
             global pages
@@ -191,8 +191,10 @@ def get_readable_message():
                     try:
                         if EMOJI_THEME is True:
                             msg += f"\n<b>├🌱 Seeders:</b> {download.seeders_num()} | <b>🐌 Leechers:</b> {download.leechers_num()}"
+                            msg += f"\n<b>├🧿 To Select:</b> <code>/{BotCommands.BtSelectCommand} {download.gid()}</code>"
                         else:
                             msg += f"\n<b>├ Seeders:</b> {download.seeders_num()} | <b>Leechers:</b> {download.leechers_num()}"
+                            msg += f"\n<b>├🧿 To Select:</b> <code>/{BotCommands.BtSelectCommand} {download.gid()}</code>"
                     except:
                         pass
                 if download.message.chat.type != 'private':
@@ -442,17 +444,16 @@ def bot_sys_stats():
                 num_extract += 1
        if stats.status() == MirrorStatus.STATUS_SPLITTING:
                 num_split += 1
-    stats = f"Bot Statistics"
-    stats += f"""
-Made with ❤️ by Weeb
-Sent : {sent} | Recv : {recv}
+    stats = f"""
 CPU : {cpu}% | RAM : {mem}%
 
 DL : {num_active} | UP : {num_upload} | SPLIT : {num_split}
 ZIP : {num_archi} | UNZIP : {num_extract} | TOTAL : {tasks}
 
 Limits : T/D : {TORRENT_DIRECT_LIMIT}GB | Z/U : {ZIP_UNZIP_LIMIT}GB
+                    L : {LEECH_LIMIT}GB | M : {MEGA_LIMIT}GB
 
+Made with ❤️ by {TITLE_NAME}
 """
     return stats
 dispatcher.add_handler(
