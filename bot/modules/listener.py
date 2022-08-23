@@ -387,7 +387,10 @@ class MirrorLeechListener:
                 if fmsg != '':
                     uploadmsg = sendMarkup(msg + fmsg + pmwarn + logleechwarn + warnmsg, self.bot, self.message, InlineKeyboardMarkup(buttons.build_menu(2)))
                     Thread(target=auto_delete_upload_message, args=(bot, self.message, uploadmsg)).start()
-
+                if BOT_PM and self.message.chat.type != 'private':
+                    try:
+                        bot.sendMessage(chat_id=self.user_id, text=f"{msg}{fmsg}", allow_sending_without_reply=True, parse_mode='HTMl', disable_web_page_preview=True)
+                    except: pass
             if self.seed:
                 if self.newDir:
                     clean_target(self.newDir)
