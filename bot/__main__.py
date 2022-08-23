@@ -359,7 +359,7 @@ help_string_telegraph_user = f'''
 '''
 
 help_user = telegraph.create_page(
-    title='{TITLE_NAME} Help',
+    title=f"{TITLE_NAME} Help",
     content=help_string_telegraph_user)["path"]
 
 help_string_telegraph_admin = f'''
@@ -383,7 +383,7 @@ help_string_telegraph_admin = f'''
 '''
 
 help_admin = telegraph.create_page(
-    title='{TITLE_NAME} Help',
+    title=f"{TITLE_NAME} Help",
     content=help_string_telegraph_admin)["path"]
 
 def bot_help(update, context):

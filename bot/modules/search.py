@@ -302,7 +302,7 @@ def _getResult(search_results, key, message, method):
 
         editMessage(f"<b>Creating</b> {len(telegraph_content)} <b>Telegraph pages.</b>", message)
         path = [telegraph.create_page(
-                    title='{TITLE_NAME}',
+                    title=f"{TITLE_NAME}",
                     content=content
                 )["path"] for content in telegraph_content]
         sleep(0.5)

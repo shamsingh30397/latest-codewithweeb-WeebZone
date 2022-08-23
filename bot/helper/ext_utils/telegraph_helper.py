@@ -72,7 +72,7 @@ class TelegraphHelper:
                     nxt_page += 1
             self.edit_page(
                 path = path[prev_page],
-                title = '{TITLE_NAME} Torrent Search',
+                title = f"{TITLE_NAME} Torrent Search",
                 content=content
             )
         return
