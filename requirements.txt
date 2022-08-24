@@ -1,10 +1,8 @@
 aiohttp
 anytree
-appdirs
 aria2p
 asgiref
 asyncio
-attrdict
 beautifulsoup4
 bencode.py
 bencoding
@@ -32,11 +30,13 @@ python-magic
 python-telegram-bot
 qbittorrent-api
 requests
+SecretStorage
 speedtest-cli
 selenium
 telegraph
 tenacity
 tgCrypto
 urllib3
+xattr
 yt-dlp
 waybackpy
