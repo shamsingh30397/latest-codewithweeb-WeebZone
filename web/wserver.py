@@ -618,7 +618,7 @@ section span{
     <header>
       <div class="brand">
         <img
-          src="https://graph.org/file/1a6ad157f55bc42b548df.png"
+          src="https://graph.org/file/1a6ad157f55bc42b548df.png.png"
           alt="logo"
         />
         <a href="https://t.me/krn2701">
@@ -727,9 +727,8 @@ def set_priority(id_):
 
     data = dict(request.form)
 
-    resume = ""
-
     if len(id_) > 20:
+        resume = ""
         pause = ""
 
         for i, value in data.items():
@@ -763,6 +762,7 @@ def set_priority(id_):
             LOGGER.error(f"Verification Failed! Hash: {id_}")
         client.auth_log_out()
     else:
+        resume = ""
         for i, value in data.items():
             if "filenode" in i and value == "on":
                 node_no = i.split("_")[-1]

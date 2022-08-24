@@ -1,4 +1,6 @@
 from signal import signal, SIGINT
+import random
+from random import choice
 from os import path as ospath, remove as osremove, execl as osexecl
 from subprocess import run as srun, check_output
 from psutil import disk_usage, cpu_percent, swap_memory, cpu_count, virtual_memory, net_io_counters, boot_time
@@ -10,13 +12,13 @@ import requests
 import pytz
 from bot import bot, dispatcher, updater, botStartTime, TIMEZONE, IGNORE_PENDING_REQUESTS, LOGGER, Interval, INCOMPLETE_TASK_NOTIFIER, \
                     DB_URI, alive, app, main_loop, HEROKU_API_KEY, HEROKU_APP_NAME, SET_BOT_COMMANDS, AUTHORIZED_CHATS, EMOJI_THEME, \
-                    START_BTN1_NAME, START_BTN1_URL, START_BTN2_NAME, START_BTN2_URL, CREDIT_NAME, TITLE_NAME
+                    START_BTN1_NAME, START_BTN1_URL, START_BTN2_NAME, START_BTN2_URL, CREDIT_NAME, TITLE_NAME, PICS
 from .helper.ext_utils.fs_utils import start_cleanup, clean_all, exit_clean_up
 from .helper.ext_utils.telegraph_helper import telegraph
 from .helper.ext_utils.bot_utils import get_readable_file_size, get_readable_time
 from .helper.ext_utils.db_handler import DbManger
 from .helper.telegram_helper.bot_commands import BotCommands
-from .helper.telegram_helper.message_utils import sendMessage, sendMarkup, editMessage, sendLogFile
+from .helper.telegram_helper.message_utils import sendMessage, sendMarkup, editMessage, sendLogFile, sendPhoto
 from .helper.telegram_helper.filters import CustomFilters
 from .helper.telegram_helper.button_build import ButtonMaker
 from bot.modules.wayback import getRandomUserAgent
@@ -191,9 +193,10 @@ def stats(update, context):
 
     heroku = getHerokuDetails(HEROKU_API_KEY, HEROKU_APP_NAME)
     if heroku: stats += heroku 
-           
-    update.effective_message.reply_photo(IMAGE_X, stats, parse_mode=ParseMode.HTML)
-
+    if PICS:
+        sendPhoto(stats, context.bot, update.message, random.choice(PICS))
+    else:
+        sendMessage(stats, context.bot, update.message)
 
 def start(update, context):
     buttons = ButtonMaker()
@@ -205,13 +208,18 @@ def start(update, context):
         buttons.buildbutton(f"{START_BTN2_NAME}", f"{START_BTN2_URL}")
     reply_markup = InlineKeyboardMarkup(buttons.build_menu(2))
     if CustomFilters.authorized_user(update) or CustomFilters.authorized_chat(update):
-        start_string = f'''
-This bot can mirror all your links to Google Drive!
+        start_string = f'''This bot can mirror all your links to Google Drive!
 Type /{BotCommands.HelpCommand} to get a list of available commands
 '''
-        sendMarkup(start_string, context.bot, update.message, reply_markup)
+        if PICS:
+            sendPhoto(start_string, context.bot, update.message, random.choice(PICS), reply_markup)
+        else:
+            sendMarkup(start_string, context.bot, update.message, reply_markup)
     else:
-        sendMarkup('Not Authorized user, deploy your own mirror-leech bot', context.bot, update.message, reply_markup)
+        if PICS:
+            sendPhoto('Not Authorized user, deploy your own mirror bot', context.bot, update.message, reply_markup, photo=random.choice(PICS))
+        else:
+            sendMarkup('Not Authorized user, deploy your own mirror bot', context.bot, update.message, reply_markup)
 
 def restart(update, context):
     cmd = update.effective_message.text.split(' ', 1)
@@ -251,7 +259,7 @@ def restart(update, context):
             Interval.clear()
         alive.kill()
         clean_all()
-        srun(["pkill", "-9", "-f", "gunicorn|chrome|firefox|megasdkrest"])
+        srun(["pkill", "-9", "-f", "gunicorn|chrome|firefox|megasdkrest|opera"])
         srun(["python3", "update.py"])
         with open(".restartmsg", "w") as f:
             f.truncate(0)

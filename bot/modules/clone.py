@@ -1,3 +1,5 @@
+import random
+from random import choice
 from random import SystemRandom
 from string import ascii_letters, digits
 from telegram.ext import CommandHandler
@@ -6,7 +8,7 @@ from time import sleep
 from pyrogram import enums
 
 from bot.helper.mirror_utils.upload_utils.gdriveTools import GoogleDriveHelper
-from bot.helper.telegram_helper.message_utils import sendMessage, sendMarkup, deleteMessage, delete_all_messages, update_all_messages, sendStatusMessage, auto_delete_upload_message, auto_delete_message, sendFile
+from bot.helper.telegram_helper.message_utils import sendMessage, sendMarkup, deleteMessage, delete_all_messages, update_all_messages, sendStatusMessage, auto_delete_upload_message, auto_delete_message, sendFile, sendPhoto
 from bot.helper.telegram_helper.filters import CustomFilters
 from bot.helper.telegram_helper.bot_commands import BotCommands
 from bot.helper.mirror_utils.status_utils.clone_status import CloneStatus
@@ -70,7 +72,7 @@ def _clone(message, bot):
         except Exception:
             pass
             
-    if BOT_PM and message.chat.type != 'private':
+    if BOT_PM:
         try:
             msg1 = f'Added your Requested link to Download\n'
             send = bot.sendMessage(message.from_user.id, text=msg1)
@@ -82,10 +84,11 @@ def _clone(message, bot):
             uname = f'<a href="tg://user?id={message.from_user.id}">{message.from_user.first_name}</a>'
             botstart = f"http://t.me/{b_uname}"
             buttons.buildbutton("Click Here to Start Me", f"{botstart}")
-            startwarn = f"Dear {uname},\n\n<b>I found that you haven't started me in PM (Private Chat) yet.</b>\n\n" \
-                        f"From now on i will give link and leeched files in PM and log channel only"
+            startwarn = f"Dear {uname},\n\n<b>I found that you haven't started me in PM (Private Chat) yet.</b>\n\nFrom now on i will give link and leeched files in PM and log channel only"
             message = sendMarkup(startwarn, bot, message, InlineKeyboardMarkup(buttons.build_menu(2)))
+            Thread(target=auto_delete_message, args=(bot, message, message)).start()
             return
+
 
     total_task = len(download_dict)
     user_id = message.from_user.id
@@ -221,7 +224,10 @@ def _clone(message, bot):
         if button in ["cancelled", ""]:
             sendMessage(f"{tag} {result}", bot, message)
         else:
-            msg = sendMarkup(result + cc + pmwarn + logwarn + warnmsg, bot, message, button)
+            if PICS:
+                msg = sendPhoto(result + cc + pmwarn + logwarn + warnmsg, bot, message, random.choice(PICS), button)
+            else:
+                msg = sendMarkup(result + cc + pmwarn + logwarn + warnmsg, bot, message, button)
             LOGGER.info(f'Cloning Done: {name}')
             Thread(target=auto_delete_upload_message, args=(bot, message, msg)).start()
         if (is_gdtot or is_unified or is_udrive):
