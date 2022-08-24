@@ -618,7 +618,7 @@ section span{
     <header>
       <div class="brand">
         <img
-          src="https://graph.org/file/1a6ad157f55bc42b548df.png.png"
+          src="https://graph.org/file/1a6ad157f55bc42b548df.png"
           alt="logo"
         />
         <a href="https://t.me/krn2701">
