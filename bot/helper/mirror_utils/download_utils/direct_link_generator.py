@@ -8,6 +8,8 @@ from https://github.com/AvinashReddy3108/PaperplaneExtended . I hereby take no c
 than the modifications. See https://github.com/AvinashReddy3108/PaperplaneExtended/commits/master/userbot/modules/direct_links.py
 for original authorship. """
 
+import math
+
 from requests import get as rget, head as rhead, post as rpost, Session as rsession
 from re import findall as re_findall, sub as re_sub, match as re_match, search as re_search
 import requests
@@ -121,7 +123,7 @@ def zippy_share(url: str) -> str:
                     LOGGER.error(err)
                     raise DirectDownloadLinkException("ERROR: Failed to Get Direct Link")
     dl_url = f"{base_url}/{uri1}/{int(mtk)}/{uri2}"
-    return Bypass().bypass_zippyshare(url)
+    return dl_url
 
 def yandex_disk(url: str) -> str:
     """ Yandex.Disk direct link generator
