@@ -3,6 +3,7 @@ import random
 from random import choice
 from os import path as ospath, remove as osremove, execl as osexecl
 from subprocess import run as srun, check_output
+from datetime import datetime, timedelta
 from psutil import disk_usage, cpu_percent, swap_memory, cpu_count, virtual_memory, net_io_counters, boot_time
 from time import time
 from sys import executable
@@ -111,9 +112,6 @@ def getHerokuDetails(h_api_key, h_app_name):
         return None
 
 
-
-IMAGE_X = "https://graph.org/file/9c2c7250397f4ed2eed20.jpg"
-
 now=datetime.now(pytz.timezone(f'{TIMEZONE}'))
 
 def stats(update, context):
@@ -216,10 +214,11 @@ Type /{BotCommands.HelpCommand} to get a list of available commands
         else:
             sendMarkup(start_string, context.bot, update.message, reply_markup)
     else:
+        text = f"Not Authorized user, deploy your own mirror bot"
         if PICS:
-            sendPhoto('Not Authorized user, deploy your own mirror bot', context.bot, update.message, reply_markup, photo=random.choice(PICS))
+            sendPhoto(text, context.bot, update.message, random.choice(PICS), reply_markup)
         else:
-            sendMarkup('Not Authorized user, deploy your own mirror bot', context.bot, update.message, reply_markup)
+            sendMarkup(text, context.bot, update.message, reply_markup)
 
 def restart(update, context):
     cmd = update.effective_message.text.split(' ', 1)
@@ -455,6 +454,8 @@ def main():
     if SET_BOT_COMMANDS:
         bot.set_my_commands(botcmds)
     start_cleanup()
+    date = now.strftime('%d/%m/%y')
+    time = now.strftime('%I:%M:%S %p')
     notifier_dict = False
     if INCOMPLETE_TASK_NOTIFIER and DB_URI is not None:
         if notifier_dict := DbManger().get_incomplete_tasks():
@@ -462,11 +463,18 @@ def main():
                 if ospath.isfile(".restartmsg"):
                     with open(".restartmsg") as f:
                         chat_id, msg_id = map(int, f)
-                    msg = '😎Restarted successfully❗'
+                    msg = f"😎Restarted successfully❗\n"
+                    msg += f" DATE: {date}\n"
+                    msg += f" TIME: {time}\n"
+                    msg += f" TIMEZONE: {TIMEZONE}\n"
                 else:
-                    msg = 'Bot Restarted!'
+                    msg = f"Bot Restarted!\n"
+                    msg += f"DATE: {date}\n"
+                    msg += f"TIME: {time}\n"
+                    msg += f"TIMEZONE: {TIMEZONE}"
+
                 for tag, links in data.items():
-                     msg += f"\n\n{tag}: "
+                     msg += f"\n{tag}: "
                      for index, link in enumerate(links, start=1):
                          msg += f" <a href='{link}'>{index}</a> |"
                          if len(msg.encode()) > 4000:
@@ -491,14 +499,17 @@ def main():
     if ospath.isfile(".restartmsg"):
         with open(".restartmsg") as f:
             chat_id, msg_id = map(int, f)
-        bot.edit_message_text("😎Restarted successfully❗", chat_id, msg_id)
+        msg = f"😎Restarted successfully❗\n DATE: {date}\n TIME: {time}\n TIMEZONE: {TIMEZONE}\n"
+        bot.edit_message_text(msg, chat_id, msg_id)
         osremove(".restartmsg")
     elif not notifier_dict and AUTHORIZED_CHATS:
+        text = f" Bot Restarted! \nDATE: {date} \nTIME: {time} \nTIMEZONE: {TIMEZONE}"
         for id_ in AUTHORIZED_CHATS:
             try:
-                bot.sendMessage(id_, "Bot Restarted!", 'HTML')
+                bot.sendMessage(chat_id=id_, text=text, parse_mode=ParseMode.HTML)
             except Exception as e:
                 LOGGER.error(e)
+
 
     start_handler = CommandHandler(BotCommands.StartCommand, start, run_async=True)
     ping_handler = CommandHandler(BotCommands.PingCommand, ping,

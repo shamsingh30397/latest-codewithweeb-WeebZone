@@ -672,14 +672,24 @@ try:
 except:
     START_BTN2_NAME = 'Support Group'
     START_BTN2_URL = 'https://t.me/WeebZone_updates'
-
 try:
     CREDIT_NAME = getConfig('CREDIT_NAME')
     if len(CREDIT_NAME) == 0:
         CREDIT_NAME = 'WeebZone'
 except KeyError:
     CREDIT_NAME = 'WeebZone'
-
+try:
+    NAME_FONT = getConfig('NAME_FONT')
+    if len(NAME_FONT) == 0:
+        NAME_FONT = 'code'
+except KeyError:
+    NAME_FONT = 'code'
+try:
+    CAPTION_FONT = getConfig('CAPTION_FONT')
+    if len(CAPTION_FONT) == 0:
+        CAPTION_FONT = 'code'
+except KeyError:
+    CAPTION_FONT = 'code'
 try:
     FINISHED_PROGRESS_STR = getConfig('FINISHED_PROGRESS_STR') 
     UN_FINISHED_PROGRESS_STR = getConfig('UN_FINISHED_PROGRESS_STR')
