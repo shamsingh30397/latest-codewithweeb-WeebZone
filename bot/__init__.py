@@ -614,6 +614,11 @@ try:
 except KeyError:	
     BOT_PM = False
 try:
+    FORCE_BOT_PM = getConfig('FORCE_BOT_PM')
+    FORCE_BOT_PM = FORCE_BOT_PM.lower() == 'true'
+except KeyError:
+    FORCE_BOT_PM = False
+try:
     MIRROR_LOG_URL = getConfig('MIRROR_LOG_URL')
     if len(MIRROR_LOG_URL) == 0:
         MIRROR_LOG_URL = ''
