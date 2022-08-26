@@ -45,9 +45,9 @@ def _clone(message, bot):
         pmwarn = ''
     if MIRROR_LOGS and message.chat.type != 'private':
         if EMOJI_THEME is True:
-            logwarn = f"<b>⚠️ I have sent files in Mirror Log Channel.(Join Mirror Log channel) </b>\n"
+            logwarn = f"<b>⚠️ I have sent files in Mirror Log Channel. Join <a href=\"{MIRROR_LOG_URL}\">Mirror Log channel</a> </b>\n"
         else:
-            logwarn = f"<b>I have sent files in Mirror Log Channel.(Join Mirror Log channel) </b>\n"
+            logwarn = f"<b>I have sent files in Mirror Log Channel. Join <a href=\"{MIRROR_LOG_URL}\">Mirror Log channel</a> </b>\n"
     elif message.chat.type == 'private':
         logwarn = ''
     else:
