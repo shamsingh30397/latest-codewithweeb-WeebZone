@@ -357,6 +357,11 @@ try:
 except:
     CMD_INDEX = ''
 try:
+    SHOW_LIMITS_IN_STATS = getConfig('SHOW_LIMITS_IN_STATS')
+    SHOW_LIMITS_IN_STATS = SHOW_LIMITS_IN_STATS.lower() == 'true'
+except KeyError:
+    SHOW_LIMITS_IN_STATS = False
+try:
     TORRENT_DIRECT_LIMIT = getConfig('TORRENT_DIRECT_LIMIT')
     if len(TORRENT_DIRECT_LIMIT) == 0:
         raise KeyError

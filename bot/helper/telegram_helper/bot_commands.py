@@ -61,9 +61,12 @@ class _BotCommands:
         self.RssUnSubCommand = getCommand('RSSUNSUB_COMMAND', f'rssunsub{CMD_INDEX}')
         self.RssSettingsCommand = getCommand('RSSSET_COMMAND', f'rssset{CMD_INDEX}')
         self.WayBackCommand = getCommand('WAYBACK_COMMAND', f'wayback{CMD_INDEX}')
+        self.SleepCommand = getCommand('SLEEP_COMMAND', f'sleep{CMD_INDEX}')
+        self.AddleechlogCommand = getCommand('ADDLEECHLOG_CMD', f'addleechlog{CMD_INDEX}')
+        self.RmleechlogCommand = getCommand('RMLEECHLOG_CMD', f'rmleechlog{CMD_INDEX}')
         self.EvalCommand = f'eval{CMD_INDEX}'
         self.ExecCommand = f'exec{CMD_INDEX}'
         self.ClearLocalsCommand = f'clearlocals{CMD_INDEX}'
-        self.SleepCommand = getCommand('SLEEP_COMMAND', f'sleep{CMD_INDEX}')
+
 
 BotCommands = _BotCommands()

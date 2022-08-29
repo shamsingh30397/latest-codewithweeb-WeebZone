@@ -13,7 +13,8 @@ import requests
 import pytz
 from bot import bot, dispatcher, updater, botStartTime, TIMEZONE, IGNORE_PENDING_REQUESTS, LOGGER, Interval, INCOMPLETE_TASK_NOTIFIER, \
                     DB_URI, alive, app, main_loop, HEROKU_API_KEY, HEROKU_APP_NAME, SET_BOT_COMMANDS, AUTHORIZED_CHATS, EMOJI_THEME, \
-                    START_BTN1_NAME, START_BTN1_URL, START_BTN2_NAME, START_BTN2_URL, CREDIT_NAME, TITLE_NAME, PICS
+                    START_BTN1_NAME, START_BTN1_URL, START_BTN2_NAME, START_BTN2_URL, CREDIT_NAME, TITLE_NAME, PICS, SHOW_LIMITS_IN_STATS, LEECH_LIMIT, TORRENT_DIRECT_LIMIT, \
+                    CLONE_LIMIT, MEGA_LIMIT, ZIP_UNZIP_LIMIT, TOTAL_TASKS_LIMIT, USER_TASKS_LIMIT, FINISHED_PROGRESS_STR, UN_FINISHED_PROGRESS_STR
 from .helper.ext_utils.fs_utils import start_cleanup, clean_all, exit_clean_up
 from .helper.ext_utils.telegraph_helper import telegraph
 from .helper.ext_utils.bot_utils import get_readable_file_size, get_readable_time
@@ -66,14 +67,12 @@ def getHerokuDetails(h_api_key, h_app_name):
         if EMOJI_THEME is True:
             abc += f'<b></b>\n'
             abc += f'<b>╭─《🌐 HEROKU STATS 🌐》</b>\n'
-            abc += f'<b>│</b>\n'
             abc += f"<b>├ 💪🏻 FULL</b>: {get_readable_time(account_quota)}\n"
             abc += f"<b>├ 👎🏻 USED</b>: {get_readable_time(quota_used)}\n"
             abc += f"<b>├ 👍🏻 FREE</b>: {get_readable_time(quota_remain)}\n"
         else:
             abc += f'<b></b>\n'
             abc += f'<b>╭─《 HEROKU STATS 》</b>\n'
-            abc += f'<b>│</b>\n'
             abc += f"<b>├ FULL</b>: {get_readable_time(account_quota)}\n"
             abc += f"<b>├ USED</b>: {get_readable_time(quota_used)}\n"
             abc += f"<b>├ FREE</b>: {get_readable_time(quota_remain)}\n"
@@ -99,18 +98,28 @@ def getHerokuDetails(h_api_key, h_app_name):
         if EMOJI_THEME is True:
             abc += f"<b>├ 🎃 APP USAGE:</b> {get_readable_time(AppQuotaUsed)}\n"
             abc += f"<b>├ 🗑️ OTHER APP:</b> {get_readable_time(OtherAppsUsage)}\n"
-            abc += f'<b>│</b>\n'
             abc += f'<b>╰─《 ☣️ {CREDIT_NAME} ☣️ 》</b>'
         else:
             abc += f"<b>├ APP USAGE:</b> {get_readable_time(AppQuotaUsed)}\n"
             abc += f"<b>├ OTHER APP:</b> {get_readable_time(OtherAppsUsage)}\n"
-            abc += f'<b>│</b>\n'
             abc += f'<b>╰─《 {CREDIT_NAME} 》</b>'
         return abc
     except Exception as g:
         LOGGER.error(g)
         return None
 
+def progress_bar(percentage):
+    p_used = FINISHED_PROGRESS_STR
+    p_total = UN_FINISHED_PROGRESS_STR
+    if isinstance(percentage, str):
+        return 'NaN'
+    try:
+        percentage=int(percentage)
+    except:
+        percentage = 0
+    return ''.join(
+        p_used if i <= percentage // 10 else p_total for i in range(1, 11)
+    )
 
 now=datetime.now(pytz.timezone(f'{TIMEZONE}'))
 
@@ -118,9 +127,12 @@ def stats(update, context):
     if ospath.exists('.git'):
         if EMOJI_THEME is True:
             last_commit = check_output(["git log -1 --date=short --pretty=format:'%cd \n<b>├</b> 🛠<b>From</b> %cr'"], shell=True).decode()
+            botVersion = check_output(["git log -1 --date=format:v%y.%m%d.%H%M --pretty=format:%cd"], shell=True).decode()
         else:
             last_commit = check_output(["git log -1 --date=short --pretty=format:'%cd \n<b>├</b> <b>From</b> %cr'"], shell=True).decode()
+            botVersion = check_output(["git log -1 --date=format:v%y.%m%d.%H%M --pretty=format:%cd"], shell=True).decode()
     else:
+        botVersion = 'No UPSTREAM_REPO'
         last_commit = 'No UPSTREAM_REPO'
     currentTime = get_readable_time(time() - botStartTime)
     current = now.strftime('%m/%d %I:%M:%S %p')
@@ -137,57 +149,90 @@ def stats(update, context):
     swap = swap_memory()
     swap_p = swap.percent
     swap_t = get_readable_file_size(swap.total)
+    swap_u = get_readable_file_size(swap.used)
     memory = virtual_memory()
     mem_p = memory.percent
     mem_t = get_readable_file_size(memory.total)
     mem_a = get_readable_file_size(memory.available)
     mem_u = get_readable_file_size(memory.used)
     if EMOJI_THEME is True:
+
             stats = f'<b>╭─《🌐 BOT STATISTICS 🌐》</b>\n' \
-                    f'<b>│</b>\n' \
-                    f'<b>├ 🛠 𝙲𝙾𝙼𝙼𝙸𝚃 𝙳𝙰𝚃𝙴:</b> {last_commit}\n'\
-                    f'<b>├ 🟢 𝙾𝙽𝙻𝙸𝙽𝙴 𝚃𝙸𝙼𝙴:</b> {currentTime}\n'\
-                    f'<b>├ 🟢 Sᴛᴀʀᴛᴇᴅ Aᴛ:</b> {current}\n'\
-                    f'<b>├ ☠️ 𝙾𝚂 𝚄𝙿𝚃𝙸𝙼𝙴:</b> {osUptime}\n'\
-                    f'<b>├ 💾 𝙳𝙸𝚂𝙺 𝚂𝙿𝙰𝙲𝙴:</b> {total}\n'\
-                    f'<b>├ 📀 𝙳𝙸𝚂𝙺 𝚂𝙿𝙰𝙲𝙴 𝚄𝚂𝙴𝙳:</b> {used}\n'\
-                    f'<b>├ 💿 𝙳𝙸𝚂𝙺 𝚂𝙿𝙰𝙲𝙴 𝙵𝚁𝙴𝙴:</b> {free}\n'\
-                    f'<b>├ 🔺 𝚄𝙿𝙻𝙾𝙰𝙳 𝙳𝙰𝚃𝙰:</b> {sent}\n'\
-                    f'<b>├ 🔻 𝙳𝙾𝚆𝙽𝙻𝙾𝙰𝙳 𝙳𝙰𝚃𝙰:</b> {recv}\n'\
-                    f'<b>├ 🖥️ 𝙲𝙿𝚄 𝚄𝚂𝙰𝙶𝙴:</b> {cpuUsage}%\n'\
-                    f'<b>├ 🎮 𝚁𝙰𝙼:</b> {mem_p}%\n'\
-                    f'<b>├ 👸 𝙳𝙸𝚂𝙺 𝚄𝚂𝙴𝙳:</b> {disk}%\n'\
-                    f'<b>├ 💽 𝙿𝙷𝚈𝚂𝙸𝙲𝙰𝙻 𝙲𝙾𝚁𝙴𝚂:</b> {p_core}\n'\
-                    f'<b>├ 🍥 𝚃𝙾𝚃𝙰𝙻 𝙲𝙾𝚁𝙴𝚂:</b> {t_core}\n'\
-                    f'<b>├ ✳ 𝚂𝚆𝙰𝙿:</b> {swap_t}\n'\
-                    f'<b>├ 👸 𝚂𝚆𝙰𝙿 𝚄𝚂𝙴𝙳:</b> {swap_p}%\n'\
-                    f'<b>├ ☁ 𝚃𝙾𝚃𝙰𝙻 𝙾𝙵 𝙼𝙴𝙼𝙾𝚁𝚈:</b> {mem_t}\n'\
-                    f'<b>├ 💃 𝙵𝚁𝙴𝙴 𝙾𝙵 𝙼𝙴𝙼𝙾𝚁𝚈:</b> {mem_a}\n'\
-                    f'<b>╰ 👰 𝚄𝚂𝙰𝙶𝙴 𝙾𝙵 𝙼𝙴𝙼𝙾𝚁𝚈:</b> {mem_u}\n'
+                    f'<b>├ ⌛ Uptime: </b>{currentTime}\n'\
+                    f'<b>├ 🙄 Version: </b>{botVersion}\n'\
+                    f'<b>├ 🛠 Updated On: </b>{last_commit}\n'\
+                    f'<b>├ 🟢 OS Uptime: </b>{osUptime}\n'\
+                    f'<b>├ 💾 Disk:</b> [{progress_bar(disk)}] {disk}%\n'\
+                    f'<b>├ 💿 Disk Free:</b> {free}\n'\
+                    f'<b>├ 🔺 Upload Data:</b> {sent}\n'\
+                    f'<b>├ 🔻 Download Data:</b> {recv}\n'\
+                    f'<b>├ 🖥️ CPU:</b> [{progress_bar(cpuUsage)}] {cpuUsage}%\n'\
+                    f'<b>├ 🎮 RAM:</b> [{progress_bar(mem_p)}] {mem_p}%\n'\
+                    f'<b>╰ 💃 Free:</b> {mem_a}\n\n'
     else:
             stats = f'<b>╭─《 BOT STATISTICS 》</b>\n' \
-                    f'<b>│</b>\n' \
-                    f'<b>├  𝙲𝙾𝙼𝙼𝙸𝚃 𝙳𝙰𝚃𝙴:</b> {last_commit}\n'\
-                    f'<b>├  𝙾𝙽𝙻𝙸𝙽𝙴 𝚃𝙸𝙼𝙴:</b> {currentTime}\n'\
-                    f'<b>├  Sᴛᴀʀᴛᴇᴅ Aᴛ:</b> {current}\n'\
-                    f'<b>├  𝙾𝚂 𝚄𝙿𝚃𝙸𝙼𝙴:</b> {osUptime}\n'\
-                    f'<b>├  𝙳𝙸𝚂𝙺 𝚂𝙿𝙰𝙲𝙴:</b> {total}\n'\
-                    f'<b>├  𝙳𝙸𝚂𝙺 𝚂𝙿𝙰𝙲𝙴 𝚄𝚂𝙴𝙳:</b> {used}\n'\
-                    f'<b>├  𝙳𝙸𝚂𝙺 𝚂𝙿𝙰𝙲𝙴 𝙵𝚁𝙴𝙴:</b> {free}\n'\
-                    f'<b>├  𝚄𝙿𝙻𝙾𝙰𝙳 𝙳𝙰𝚃𝙰:</b> {sent}\n'\
-                    f'<b>├  𝙳𝙾𝚆𝙽𝙻𝙾𝙰𝙳 𝙳𝙰𝚃𝙰:</b> {recv}\n'\
-                    f'<b>├  𝙲𝙿𝚄 𝚄𝚂𝙰𝙶𝙴:</b> {cpuUsage}%\n'\
-                    f'<b>├  𝚁𝙰𝙼:</b> {mem_p}%\n'\
-                    f'<b>├  𝙳𝙸𝚂𝙺 𝚄𝚂𝙴𝙳:</b> {disk}%\n'\
-                    f'<b>├  𝙿𝙷𝚈𝚂𝙸𝙲𝙰𝙻 𝙲𝙾𝚁𝙴𝚂:</b> {p_core}\n'\
-                    f'<b>├  𝚃𝙾𝚃𝙰𝙻 𝙲𝙾𝚁𝙴𝚂:</b> {t_core}\n'\
-                    f'<b>├  𝚂𝚆𝙰𝙿:</b> {swap_t}\n'\
-                    f'<b>├  𝚂𝚆𝙰𝙿 𝚄𝚂𝙴𝙳:</b> {swap_p}%\n'\
-                    f'<b>├  𝚃𝙾𝚃𝙰𝙻 𝙾𝙵 𝙼𝙴𝙼𝙾𝚁𝚈:</b> {mem_t}\n'\
-                    f'<b>├  𝙵𝚁𝙴𝙴 𝙾𝙵 𝙼𝙴𝙼𝙾𝚁𝚈:</b> {mem_a}\n'\
-                    f'<b>╰  𝚄𝚂𝙰𝙶𝙴 𝙾𝙵 𝙼𝙴𝙼𝙾𝚁𝚈:</b> {mem_u}\n'
+                    f'<b>├  Uptime: </b>{currentTime}\n'\
+                    f'<b>├  Version: </b>{botVersion}\n'\
+                    f'<b>├  Updated On: </b>{last_commit}\n'\
+                    f'<b>├  OS Uptime: </b>{osUptime}\n'\
+                    f'<b>├  Disk:</b> [{progress_bar(disk)}] {disk}%\n'\
+                    f'<b>├  Disk Free:</b> {free}\n'\
+                    f'<b>├  Upload Data:</b> {sent}\n'\
+                    f'<b>├  Download Data:</b> {recv}\n'\
+                    f'<b>├  CPU usage:</b> [{progress_bar(cpuUsage)}] {cpuUsage}%\n'\
+                    f'<b>├  RAM:</b> [{progress_bar(mem_p)}] {mem_p}%\n'\
+                    f'<b>╰  Free:</b> {mem_a}\n\n'
 
-                
+
+    if SHOW_LIMITS_IN_STATS is True:
+        if TORRENT_DIRECT_LIMIT is None:
+            torrent_direct = 'No Limit Set'
+        else:
+            torrent_direct = f'{TORRENT_DIRECT_LIMIT}GB/Link'
+        if CLONE_LIMIT is None:
+            clone_limit = 'No Limit Set'
+        else:
+            clone_limit = f'{CLONE_LIMIT}GB/Link'
+        if MEGA_LIMIT is None:
+            mega_limit = 'No Limit Set'
+        else:
+            mega_limit = f'{MEGA_LIMIT}GB/Link'
+        if LEECH_LIMIT is None:
+            leech_limit = 'No Limit Set'
+        else:
+            leech_limit = f'{LEECH_LIMIT}GB/Link'
+        if ZIP_UNZIP_LIMIT is None:
+            zip_unzip = 'No Limit Set'
+        else:
+            zip_unzip = f'{ZIP_UNZIP_LIMIT}GB/Link'
+        if TOTAL_TASKS_LIMIT is None:
+            total_task = 'No Limit Set'
+        else:
+            total_task = f'{TOTAL_TASKS_LIMIT} Total Tasks/Time'
+        if USER_TASKS_LIMIT is None:
+            user_task = 'No Limit Set'
+        else:
+            user_task = f'{USER_TASKS_LIMIT} Tasks/user'
+
+
+        if EMOJI_THEME is True: 
+            stats += f'<b>╭─《 ⚠️ BOT LIMITS ⚠️ 》</b>\n'\
+                     f'<b>├ 🧲 Torrent/Direct: </b>{torrent_direct}\n'\
+                     f'<b>├ 🔐 Zip/Unzip: </b>{zip_unzip}\n'\
+                     f'<b>├ 🔷 Leech: </b>{leech_limit}\n'\
+                     f'<b>├ ♻️ Clone: </b>{clone_limit}\n'\
+                     f'<b>├ 🔰 Mega: </b>{mega_limit}\n'\
+                     f'<b>├ 💣 Total Tasks: </b>{total_task}\n'\
+                     f'<b>╰ 🔫 User Tasks: </b>{user_task}\n\n'
+        else: 
+            stats += f'<b>╭─《  BOT LIMITS  》</b>\n'\
+                     f'<b>├  Torrent/Direct: </b>{torrent_direct}\n'\
+                     f'<b>├  Zip/Unzip: </b>{zip_unzip}\n'\
+                     f'<b>├  Leech: </b>{leech_limit}\n'\
+                     f'<b>├  Clone: </b>{clone_limit}\n'\
+                     f'<b>├  Mega: </b>{mega_limit}\n'\
+                     f'<b>├  Total Tasks: </b>{total_task}\n'\
+                     f'<b>╰  User Tasks: </b>{user_task}\n\n'
 
     heroku = getHerokuDetails(HEROKU_API_KEY, HEROKU_APP_NAME)
     if heroku: stats += heroku 
@@ -430,6 +475,7 @@ if SET_BOT_COMMANDS:
         (f'{BotCommands.CancelMirror}','Cancel a task'),
         (f'{BotCommands.CancelAllCommand}','Cancel all downloading tasks'),
         (f'{BotCommands.ListCommand}','Search in Drive'),
+        (f'{BotCommands.SearchCommand}','Search in Torrent'),
         (f'{BotCommands.LeechSetCommand}','Leech settings'),
         (f'{BotCommands.SetThumbCommand}','Set thumbnail'),
         (f'{BotCommands.StatusCommand}','Get mirror status message'),
@@ -437,6 +483,8 @@ if SET_BOT_COMMANDS:
         (f'{BotCommands.UsageCommand}','Heroku Dyno usage'),
         (f'{BotCommands.SpeedCommand}','Speedtest'),
         (f'{BotCommands.WayBackCommand}','Internet Archive'),
+        (f'{BotCommands.MediaInfoCommand}','Get Information of telegram Files'),
+        (f'{BotCommands.HashCommand}','Get Hash of telegram Files'),
         (f'{BotCommands.PingCommand}','Ping the bot'),
         (f'{BotCommands.RestartCommand}','Restart the bot'),
         (f'{BotCommands.LogCommand}','Get the bot Log'),
@@ -446,6 +494,8 @@ if SET_BOT_COMMANDS:
         (f'{BotCommands.UnAuthorizeCommand}','UnAuthorize user/chat'),
         (f'{BotCommands.AddSudoCommand}','Add Sudo'),
         (f'{BotCommands.RmSudoCommand}','Remove Sudo'),
+        (f'{BotCommands.AddleechlogCommand}','Add Leech Log Channel'),
+        (f'{BotCommands.RmleechlogCommand}','Remove Leech Log Channel'),
         (f'{BotCommands.SleepCommand}','Sleep Bot')
     ]
 

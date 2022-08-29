@@ -1,4 +1,4 @@
-from bot import AUTHORIZED_CHATS, SUDO_USERS, dispatcher, DB_URI
+from bot import AUTHORIZED_CHATS, SUDO_USERS, dispatcher, DB_URI, LEECH_LOG
 from bot.helper.telegram_helper.message_utils import sendMessage
 from telegram.ext import CommandHandler
 from bot.helper.telegram_helper.filters import CustomFilters
@@ -96,11 +96,68 @@ def removeSudo(update, context):
         msg = "Give ID or Reply To message of whom you want to remove from Sudo"
     sendMessage(msg, context.bot, update.message)
 
+def addleechlog(update, context):
+    user_id = ""
+    reply_message = update.message.reply_to_message
+    if len(context.args) == 1:
+        user_id = int(context.args[0])
+    elif reply_message:
+        user_id = reply_message.from_user.id
+    if user_id:
+        if user_id in LEECH_LOG:
+            msg = 'Chat Already in Leech Logs'
+        elif DB_URI is not None:
+            msg = DbManger().addleech_log(user_id)
+            LEECH_LOG.add(user_id)
+        else:
+            LEECH_LOG.add(user_id)
+            msg = 'Chat Added in Leech Logs'
+    else:
+        chat_id = update.effective_chat.id
+        if chat_id in LEECH_LOG:
+            msg = 'Chat Already in Leech Logs'
+        elif DB_URI is not None:
+            msg = DbManger().addleech_log(chat_id)
+            LEECH_LOG.add(chat_id)
+        else:
+            LEECH_LOG.add(chat_id)
+            msg = 'Chat Added to Leech Logs'
+    sendMessage(msg, context.bot, update.message)
+
+def rmleechlog(update, context):
+    user_id = ""
+    reply_message = update.message.reply_to_message
+    if len(context.args) == 1:
+        user_id = int(context.args[0])
+    elif reply_message:
+        user_id = reply_message.from_user.id
+    if user_id:
+        if user_id in LEECH_LOG:
+            if DB_URI is not None:
+                msg = DbManger().rmleech_log(user_id)
+            else:
+                msg = 'User removed from leech logs'
+            LEECH_LOG.remove(user_id)
+        else:
+            msg = 'User does not exist in leech logs!'
+    else:
+        chat_id = update.effective_chat.id
+        if chat_id in LEECH_LOG:
+            if DB_URI is not None:
+                msg = DbManger().rmleech_log(chat_id)
+            else:
+                msg = 'Chat removed from leech logs!'
+            LEECH_LOG.remove(chat_id)
+        else:
+            msg = 'Chat does not exist in leech logs!'
+    sendMessage(msg, context.bot, update.message)
+
 def sendAuthChats(update, context):
-    user = sudo = ''
+    user = sudo = leechlog = ''
     user += '\n'.join(f"<code>{uid}</code>" for uid in AUTHORIZED_CHATS)
     sudo += '\n'.join(f"<code>{uid}</code>" for uid in SUDO_USERS)
-    sendMessage(f'<b><u>Authorized Chats💬 :</u></b>\n{user}\n<b><u>Sudo Users👤 :</u></b>\n{sudo}', context.bot, update.message)
+    leechlog += '\n'.join(f"<code>{uid}</code>" for uid in LEECH_LOG)
+    sendMessage(f'<b><u>Authorized Chats💬 :</u></b>\n{user}\n<b><u>Sudo Users👤 :</u></b>\n{sudo}\n<b><u>Leech Log:</u></b>\n{leechlog}', context.bot, update.message)
 
 
 send_auth_handler = CommandHandler(command=BotCommands.AuthorizedUsersCommand, callback=sendAuthChats,
@@ -113,9 +170,15 @@ addsudo_handler = CommandHandler(command=BotCommands.AddSudoCommand, callback=ad
                                     filters=CustomFilters.owner_filter, run_async=True)
 removesudo_handler = CommandHandler(command=BotCommands.RmSudoCommand, callback=removeSudo,
                                     filters=CustomFilters.owner_filter, run_async=True)
+addleechlog_handler = CommandHandler(command=BotCommands.AddleechlogCommand, callback=addleechlog,
+                                    filters=CustomFilters.owner_filter | CustomFilters.sudo_user, run_async=True)
+rmleechlog_handler = CommandHandler(command=BotCommands.RmleechlogCommand, callback=rmleechlog,
+                                    filters=CustomFilters.owner_filter | CustomFilters.sudo_user, run_async=True)
 
 dispatcher.add_handler(send_auth_handler)
 dispatcher.add_handler(authorize_handler)
 dispatcher.add_handler(unauthorize_handler)
 dispatcher.add_handler(addsudo_handler)
 dispatcher.add_handler(removesudo_handler)
+dispatcher.add_handler(addleechlog_handler)
+dispatcher.add_handler(rmleechlog_handler)

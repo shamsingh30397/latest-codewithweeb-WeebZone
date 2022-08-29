@@ -169,7 +169,7 @@ def get_readable_message():
             if download.status() not in [MirrorStatus.STATUS_SEEDING, MirrorStatus.STATUS_SPLITTING]:
                 if EMOJI_THEME is True:
                     msg += f"\n<b>├</b>{get_progress_bar_string(download)} {download.progress()}"
-                    msg += f"\n<b>├🔄 Processed:</b> {get_readable_file_size(download.processed_bytes())} of {download.size()}"
+                    msg += f"\n<b>├🔄 Process:</b> {get_readable_file_size(download.processed_bytes())} of {download.size()}"
                     msg += f"\n<b>├⚡ Speed:</b> {download.speed()}"
                     msg += f"\n<b>├⏳ ETA:</b> {download.eta()}"
                     msg += f"\n<b>├⏳ Elapsed: </b>{get_readable_time(time() - download.message.date.timestamp())}"
@@ -177,7 +177,7 @@ def get_readable_message():
                     msg += f"\n<b>├⚠️ Warn: </b> <code>/warn {download.message.from_user.id}</code>"
                 else:
                     msg += f"\n<b>├</b>{get_progress_bar_string(download)} {download.progress()}"
-                    msg += f"\n<b>├ Processed:</b> {get_readable_file_size(download.processed_bytes())} of {download.size()}"
+                    msg += f"\n<b>├ Process:</b> {get_readable_file_size(download.processed_bytes())} of {download.size()}"
                     msg += f"\n<b>├ Speed:</b> {download.speed()}"
                     msg += f"\n<b>├ ETA:</b> {download.eta()}"
                     msg += f"\n<b>├ Elapsed: </b>{get_readable_time(time() - download.message.date.timestamp())}"

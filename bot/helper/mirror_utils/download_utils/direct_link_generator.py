@@ -39,7 +39,7 @@ fmed_list = ['fembed.net', 'fembed.com', 'femax20.com', 'fcdn.stream', 'feurl.co
 def direct_link_generator(link: str):
     """ direct links generator """
     if 'youtube.com' in link or 'youtu.be' in link:
-        raise DirectDownloadLinkException("ERROR: Use /{BotCommands.WatchCommand} to mirror Youtube link\nUse /{BotCommands.ZipWatchCommand} to make zip of Youtube playlist")
+        raise DirectDownloadLinkException(f"ERROR: Use /{BotCommands.WatchCommand} to mirror Youtube link\nUse /{BotCommands.ZipWatchCommand} to make zip of Youtube playlist")
     elif 'zippyshare.com' in link:
         return zippy_share(link)
     elif 'yadi.sk' in link or 'disk.yandex.com' in link:

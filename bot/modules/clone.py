@@ -218,9 +218,9 @@ def _clone(message, bot):
             except IndexError:
                 pass
         if EMOJI_THEME is True:
-            cc = f'\n<b>╰👤 cc: </b>{tag}\n\n'
+            cc = f'\n<b>╰👤 #Clone_By: </b>{tag}\n\n'
         else:
-            cc = f'\n<b>╰ cc: </b>{tag}\n\n'
+            cc = f'\n<b>╰ #Clone_By: </b>{tag}\n\n'
         if button in ["cancelled", ""]:
             sendMessage(f"{tag} {result}", bot, message)
         else:

@@ -313,10 +313,10 @@ class MirrorLeechListener:
                         msg += f'\n<b>├ Corrupted Files: </b>{typ}'
                 if EMOJI_THEME is True:
                     msg += f'\n<b>├⌛ It Tooks:</b> {get_readable_time(time() - self.message.date.timestamp())}'
-                    msg += f'\n<b>╰👤 cc: </b>{self.tag}\n\n'
+                    msg += f'\n<b>╰👤 #Leech_by: </b>{self.tag}\n\n'
                 else: 
                     msg += f'\n<b>├ It Tooks:</b> {get_readable_time(time() - self.message.date.timestamp())}'
-                    msg += f'\n<b>╰ cc: </b>{self.tag}\n\n'
+                    msg += f'\n<b>╰ #Leech_by: </b>{self.tag}\n\n'
             else:
                 if EMOJI_THEME is True:
                     msg += f'\n<b>├📦 Type: </b>{typ}'
@@ -331,10 +331,10 @@ class MirrorLeechListener:
                         msg += f'\n<b>├ Files: </b>{files}'
                 if EMOJI_THEME is True:
                     msg += f'\n<b>├⌛ It Tooks:</b> {get_readable_time(time() - self.message.date.timestamp())}'
-                    msg += f'\n<b>╰👤 cc: </b>{self.tag}\n\n'
+                    msg += f'\n<b>╰👤 #Mirror_By: </b>{self.tag}\n\n'
                 else:
                     msg += f'\n<b>├ It Tooks:</b> {get_readable_time(time() - self.message.date.timestamp())}'
-                    msg += f'\n<b>╰ cc: </b>{self.tag}\n\n' 
+                    msg += f'\n<b>╰ #Mirror_By: </b>{self.tag}\n\n' 
             b_uname = bot.get_me().username
             botstart = f"http://t.me/{b_uname}"
             buttons.buildbutton("View links in PM", f"{botstart}")
@@ -363,10 +363,12 @@ class MirrorLeechListener:
                         msg += f'\n<b>├ Corrupted Files: </b>{typ}'
                 if EMOJI_THEME is True:
                     msg += f'\n<b>├⌛ It Tooks:</b> {get_readable_time(time() - self.message.date.timestamp())}'
-                    msg += f'\n<b>╰👤 cc: </b>{self.tag}\n\n'
+                    msg += f'\n<b>╰👤 #Leech_by: </b>{self.tag}\n\n'
                 else: 
                     msg += f'\n<b>├ It Tooks:</b> {get_readable_time(time() - self.message.date.timestamp())}'
-                    msg += f'\n<b>╰ cc: </b>{self.tag}\n\n'
+                    msg += f'\n<b>╰ #Leech_by: </b>{self.tag}\n\n'
+            else:
+                pass
             if SOURCE_LINK is True:
                 try:
                     mesg = message_args[1]
@@ -403,6 +405,13 @@ class MirrorLeechListener:
                         pass
             else:
                 pass
+            if BOT_PM:
+                bot_d = bot.get_me()
+                b_uname = bot_d.username
+                botstart = f"http://t.me/{b_uname}"
+                buttons.buildbutton("View file in PM", f"{botstart}")
+            else:
+                pass
             if LEECH_LOG_INDEXING is True:
                 for i in LEECH_LOG:
                     indexmsg = ''
@@ -419,6 +428,8 @@ class MirrorLeechListener:
                         bot.sendMessage(chat_id=i, text=msg + indexmsg,
                                         reply_markup=InlineKeyboardMarkup(buttons.build_menu(2)),
                                         parse_mode=ParseMode.HTML)
+            else:
+                pass
             if not files:
                 if PICS:
                     uploadmsg = sendPhoto(msg, self.bot, self.message, random.choice(PICS), InlineKeyboardMarkup(buttons.build_menu(2)))
@@ -429,7 +440,7 @@ class MirrorLeechListener:
                 for index, (link, name) in enumerate(files.items(), start=1):
                     fmsg += f"{index}. <a href='{link}'>{name}</a>\n"
                     if len(fmsg.encode() + msg.encode()) > 2000:
-                        sleep(3)
+                        sleep(1.5)
                         if FORCE_BOT_PM is False:
                             if PICS:
                                 uploadmsg = sendPhoto(msg + fmsg + pmwarn + logleechwarn + warnmsg, self.bot, self.message, random.choice(PICS), InlineKeyboardMarkup(buttons.build_menu(2)))
@@ -437,7 +448,7 @@ class MirrorLeechListener:
                                 uploadmsg = sendMarkup(msg + fmsg + pmwarn + logleechwarn + warnmsg, self.bot, self.message, InlineKeyboardMarkup(buttons.build_menu(2)))
                         fmsg = ''
                 if fmsg != '':
-                    sleep(3)
+                    sleep(1.5)
                     if FORCE_BOT_PM is False:
                         if PICS:
                             uploadmsg = sendPhoto(msg + fmsg + pmwarn + logleechwarn + warnmsg, self.bot, self.message, random.choice(PICS), InlineKeyboardMarkup(buttons.build_menu(2)))
@@ -463,10 +474,10 @@ class MirrorLeechListener:
                         msg += f'\n<b>├ Files: </b>{files}'
                 if EMOJI_THEME is True:
                     msg += f'\n<b>├⌛ It Tooks:</b> {get_readable_time(time() - self.message.date.timestamp())}'
-                    msg += f'\n<b>╰👤 cc: </b>{self.tag}\n\n'
+                    msg += f'\n<b>╰👤 #Mirror_By: </b>{self.tag}\n\n'
                 else:
                     msg += f'\n<b>├ It Tooks:</b> {get_readable_time(time() - self.message.date.timestamp())}'
-                    msg += f'\n<b>╰ cc: </b>{self.tag}\n\n'
+                    msg += f'\n<b>╰ #Mirror_By: </b>{self.tag}\n\n'
             buttons = ButtonMaker()
             link = short_url(link)
             buttons.buildbutton("☁️ Drive Link", link)
@@ -519,6 +530,13 @@ class MirrorLeechListener:
                                         buttons.buildbutton(f"🔗 Source Link", source_link)
                             except Exception:
                                 pass
+                    else:
+                        pass
+                    if BOT_PM:
+                        bot_d = bot.get_me()
+                        b_uname = bot_d.username
+                        botstart = f"http://t.me/{b_uname}"
+                        buttons.buildbutton("View file in PM", f"{botstart}")
                     else:
                         pass
                     if BUTTON_FOUR_NAME is not None and BUTTON_FOUR_URL is not None:
