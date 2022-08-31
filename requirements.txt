@@ -30,7 +30,6 @@ python-magic
 python-telegram-bot
 qbittorrent-api
 requests
-SecretStorage
 speedtest-cli
 selenium
 telegraph
