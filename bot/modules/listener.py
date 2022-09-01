@@ -449,7 +449,7 @@ class MirrorLeechListener:
                         fmsg = ''
                 if fmsg != '':
                     sleep(1.5)
-                    if FORCE_BOT_PM is False:
+                    if FORCE_BOT_PM is False or self.message.chat.type == 'private':
                         if PICS:
                             uploadmsg = sendPhoto(msg + fmsg + pmwarn + logleechwarn + warnmsg, self.bot, self.message, random.choice(PICS), InlineKeyboardMarkup(buttons.build_menu(2)))
                         else:
