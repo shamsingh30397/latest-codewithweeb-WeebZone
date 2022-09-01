@@ -299,7 +299,7 @@ class MirrorLeechListener:
             msg = f"<b>╭🗂️ Name: </b><{NAME_FONT}>{escape(name)}</{NAME_FONT}>\n<b>├📐 Size: </b>{size}"
         else:
             msg = f"<b>╭ Name: </b><{NAME_FONT}>{escape(name)}</{NAME_FONT}>\n<b>├ Size: </b>{size}"
-        if BOT_PM and FORCE_BOT_PM:
+        if BOT_PM and FORCE_BOT_PM and self.message.chat.type != 'private':
             buttons = ButtonMaker()
             if self.isLeech:
                 if EMOJI_THEME is True:
